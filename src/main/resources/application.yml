@@ -5,6 +5,22 @@ db:
   username: root
   password: 123
 
+# 作者名称
+author.comment: fahrtwind
+
+# 需要忽略的属性
+ignore.bean.tojson.field: companyId,status
+ignore.bean.tojson.expression: @JsonIgnore
+ignore.bean.tojson.class: import com.fasterxml.jackson.annotation.JsonIgnore
+
+# 日期格式序列化
+bean.date.format.expression: @JsonFormat(pattern = "%s", timezone = "GMT+8")
+bean.date.format.class: import com.fasterxml.jackson.annotation.JsonFormat
+
+# 日期格式反序列化
+bean.date.unformat.expression: @DataTimeFormat(pattern = "%s")
+bean.date.unformat.class: import org.springframework.format.annotation.DateTimeFormat;
+
 # 是否忽略表前缀
 ignore.table.prefix: true
 
@@ -18,3 +34,5 @@ path.base: G:/Programs/tools/workspace-easyjava/easyJava-damo/src/main/
 package.base: com.easyjava
 package.po: entity.po
 package.param: entity.query
+
+

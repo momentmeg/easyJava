@@ -121,6 +121,11 @@ public class BuildTable {
         try {
             ps = conn.prepareStatement(String.format(SQL_SHOW_TABLE_FIELDS, tableInfo.getTableName()));
             fieldResults = ps.executeQuery();
+
+            Boolean haveDateTime = false;
+            Boolean haveDate = false;
+            Boolean haveBigDecimal = false;
+
             while (fieldResults.next()) {
                 String field = fieldResults.getString("field");
                 String type = fieldResults.getString("type");
@@ -143,23 +148,22 @@ public class BuildTable {
                 fieldInfo.setPropertyName(propertyName);
                 fieldInfo.setJavaType(processJavaType(type));
 
-                if (ArrayUtils.contains(Constants.SQL_DATE_TIME_TYPES,type)){
-                    tableInfo.setHaveDateTime(true);
-                } else {
-                    tableInfo.setHaveDateTime(false);
+                if (ArrayUtils.contains(Constants.SQL_DATE_TIME_TYPES, type)) {
+                    haveDateTime = true;
                 }
-                if (ArrayUtils.contains(Constants.SQL_DATE_TYPES,type)){
-                    tableInfo.setHaveDate(true);
-                }else {
-                    tableInfo.setHaveDate(false);
+                if (ArrayUtils.contains(Constants.SQL_DATE_TYPES, type)) {
+                    haveDate = true;
                 }
-                if (ArrayUtils.contains(Constants.SQL_DECIMAL_TYPE,type)){
-                    tableInfo.setHaveBigDecimal(true);
-                }else {
-                    tableInfo.setHaveBigDecimal(false);
+
+                if (ArrayUtils.contains(Constants.SQL_DECIMAL_TYPE, type)) {
+                    haveBigDecimal = true;
                 }
 
             }
+
+            tableInfo.setHaveDate(haveDate);
+            tableInfo.setHaveDateTime(haveDateTime);
+            tableInfo.setHaveBigDecimal(haveBigDecimal);
 
             tableInfo.setFieldList(fieldInfoList);
 
@@ -208,9 +212,9 @@ public class BuildTable {
         List<FieldInfo> fieldInfoList = new ArrayList();
         try {
 
-            Map<String,FieldInfo> tempMap = new HashMap();
-            for (FieldInfo fieldInfo : tableInfo.getFieldList()){
-               tempMap.put(fieldInfo.getFieldName(),fieldInfo);
+            Map<String, FieldInfo> tempMap = new HashMap();
+            for (FieldInfo fieldInfo : tableInfo.getFieldList()) {
+                tempMap.put(fieldInfo.getFieldName(), fieldInfo);
             }
 
             ps = conn.prepareStatement(String.format(SQL_SHOW_TABLE_INDEX, tableInfo.getTableName()));
@@ -220,13 +224,13 @@ public class BuildTable {
                 Integer nonUnique = fieldResults.getInt("non_unique");
                 String columnName = fieldResults.getString("column_name");
 
-                if(nonUnique == 1){
+                if (nonUnique == 1) {
                     continue;
                 }
                 List<FieldInfo> keyFieldList = tableInfo.getKeyIndexMap().get(keyName);
-                if(keyFieldList == null){
+                if (keyFieldList == null) {
                     keyFieldList = new ArrayList();
-                    tableInfo.getKeyIndexMap().put(keyName,keyFieldList);
+                    tableInfo.getKeyIndexMap().put(keyName, keyFieldList);
                 }
 //                for (FieldInfo fieldInfo : tableInfo.getFieldList()){
 //                    if(fieldInfo.getFieldName().equals(columnName)){

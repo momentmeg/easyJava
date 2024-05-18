@@ -4,6 +4,7 @@ import sun.awt.image.InputStreamImageSource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -25,7 +26,7 @@ public class PropertiesUtils {
         InputStream is = null;
         try {
             is = PropertiesUtils.class.getClassLoader().getResourceAsStream("application.yml");
-            props.load(is);
+            props.load(new InputStreamReader(is,"utf-8"));
 
             Iterator<Object> iterator = props.keySet().iterator();
             while (iterator.hasNext()) {

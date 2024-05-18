@@ -1,7 +1,10 @@
 package com.easyjava.builder;
 
+import com.easyjava.Utils.DateUtils;
 import com.easyjava.bean.Constants;
+import com.easyjava.bean.FieldInfo;
 import com.easyjava.bean.TableInfo;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,10 +43,54 @@ public class BuildPo {
 
             bw.write("import java.io.Serializable;");
             bw.newLine();
+            //导包
+
+            if (tableInfo.getHaveDate() || tableInfo.getHaveDateTime())
+            {
+                bw.write("import java.util.Data;");
+                bw.newLine();
+                bw.write(Constants.BEAN_DATE_FORMAT_CLASS+";");
+                bw.newLine();
+                bw.write(Constants.BEAN_DATE_UNFORMAT_CLASS+";");
+                bw.newLine();
+            }
+            if (tableInfo.getHaveBigDecimal()){
+                bw.write("import java.math.BigDecimal;");
+            }
             bw.newLine();
+            bw.newLine();
+
+            //创建注释
+            BuildComment.createClassComment(bw, tableInfo.getComment());
 
             bw.write("public class " + tableInfo.getBeanName() + " implements Serializable {");
             bw.newLine();
+
+            //生成属性
+            for (FieldInfo field : tableInfo.getFieldList()) {
+                BuildComment.createFieldComment(bw,field.getComment());
+
+                if(ArrayUtils.contains(Constants.SQL_DATE_TIME_TYPES,field.getSqlType())){
+                    //序列化
+                    bw.write("\t"+String.format(Constants.BEAN_DATE_FORMAT_EXPRESSION, DateUtils.style4));
+                    bw.newLine();
+                    //反序列化
+                    bw.write("\t"+String.format(Constants.BEAN_DATE_UNFORMAT_EXPRESSION, DateUtils.style4));
+                    bw.newLine();
+                }
+                if(ArrayUtils.contains(Constants.SQL_DATE_TYPES,field.getSqlType())){
+                    //序列化
+                    bw.write("\t"+String.format(Constants.BEAN_DATE_FORMAT_EXPRESSION, DateUtils.style3));
+                    bw.newLine();
+                    //反序列化
+                    bw.write("\t"+String.format(Constants.BEAN_DATE_UNFORMAT_EXPRESSION, DateUtils.style3));
+                    bw.newLine();
+                }
+
+
+                bw.write("\tprivate " + field.getJavaType() + " " + field.getPropertyName() + ";");
+                bw.newLine();
+            }
             bw.write("}");
             bw.flush();
         } catch (Exception e) {
